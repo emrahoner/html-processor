@@ -1,7 +1,7 @@
 import { JSDOM } from "jsdom"
 import AttributeProcessor from "./attribute-processor"
 
-describe('AttributeProcessor', () => {
+describe.skip('AttributeProcessor', () => {
     let document: Document
     beforeEach(() => {
         const html = `

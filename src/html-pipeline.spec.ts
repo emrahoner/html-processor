@@ -2,7 +2,7 @@ import { HtmlProcessTypes } from './types';
 import HtmlPipeline from "./html-pipeline"
 import { AttributeParameters } from "./processors/attribute-processor"
 
-describe('HtmlPipeline', () => {
+describe.skip('HtmlPipeline', () => {
     let html
     beforeEach(() => {
         html = `

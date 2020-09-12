@@ -1,6 +1,6 @@
 import { HtmlPipelineOption, HtmlProcessor } from "./types";
 import lookup from './buildin-processor-lookup'
-import { JSDOM } from "jsdom";
+// import { Parser } from "htmlparser2";
 
 class HtmlPipeline {
     private processors: HtmlProcessor<any>[]
@@ -15,11 +15,12 @@ class HtmlPipeline {
     }
 
     process(html: string): string {
-        var dom = new JSDOM(html)
-        for(const processor of this.processors) {
-            processor.process(dom.window.document)
-        }
-        return dom.window.document.documentElement.outerHTML
+        // var dom = new JSDOM(html)
+        // for(const processor of this.processors) {
+        //     processor.process(dom.window.document)
+        // }
+        // return dom.window.document.documentElement.outerHTML
+        return null
     }
 }
 

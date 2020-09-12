@@ -16,10 +16,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
   },
-  "dependencies": {
-    "@types/jsdom": "^16.2.3",
-    "jsdom": "^16.4.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/jest": "^26.0.10",
     "@types/node": "^14.0.27",
