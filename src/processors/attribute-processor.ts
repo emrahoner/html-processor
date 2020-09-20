@@ -1,7 +1,10 @@
-import { HtmlProcessTypes } from '../types';
+import { HtmlElement } from './../dom/html-element';
+import { HtmlDocument } from 'src/dom/html-document';
+import { HtmlProcessorTypes } from '../types';
 import { HtmlProcessor } from '../types';
 import Processor from '../decorators/processor';
-import { doc } from 'prettier';
+import { HtmlNode } from 'src/dom/html-node';
+import { NodeTypes } from 'src/dom/node-types';
 
 interface AttributeParameters {
     selectors: string[]
@@ -9,28 +12,30 @@ interface AttributeParameters {
     attribute: string | { name: string, value: string }
 }
 
-@Processor(HtmlProcessTypes.AddAttribute)
+@Processor(HtmlProcessorTypes.Attribute)
 class AttributeProcessor implements HtmlProcessor<AttributeParameters> {
     params: AttributeParameters;
 
     constructor(params: AttributeParameters) {
         this.params = params
     }
-
-    process(document: Document) {
+    elementStarted(element: HtmlElement) {
         const params = this.params
-        for(const selector of params.selectors) {
-            var elements = document.querySelectorAll(selector)
-            for(const element of elements) {
-                if(params.action === 'add') {
-                    typeof params.attribute === 'string' ? 
-                        element.setAttributeNode(document.createAttribute(params.attribute)) :
-                        element.setAttribute(params.attribute.name, params.attribute.value)
-                } else if (params.action === 'delete') {
-                    element.removeAttribute(typeof params.attribute === 'string' ? params.attribute : params.attribute.name)
-                }
+        if(params.selectors.reduce((prev, curr) => prev || element.matches(curr), false)) {
+            if(params.action === 'add') {
+                typeof params.attribute === 'string' ? 
+                    element.attributes.setNamedItem({ name: params.attribute, value: '' }) :
+                    element.attributes.setNamedItem({ name: params.attribute.name, value: params.attribute.value })
+            } else if (params.action === 'delete') {
+                element.attributes.removeNamedItem(typeof params.attribute === 'string' ? params.attribute : params.attribute.name)
             }
         }
+    }
+    elementEnded(element: HtmlElement) {
+        
+    }
+    textCreated(node: HtmlNode) {
+        
     }
 }
 

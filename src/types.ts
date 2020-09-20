@@ -1,14 +1,18 @@
-export enum HtmlProcessTypes {
-    AddAttribute = 'add-attribute',
-    ClearScripts = 'clear-scripts'
+import { HtmlElement } from './dom/html-element';
+import { HtmlNode } from "./dom/html-node";
+
+export enum HtmlProcessorTypes {
+    Attribute = 'attribute',
+    Element = 'element'
 }
 
 export interface HtmlPipelineOption<TParam> {
-    process: HtmlProcessTypes | string,
+    processor: HtmlProcessorTypes | string,
     params: TParam
 }
 
 export interface HtmlProcessor<TParam> {
-    params: TParam
-    process(document)
+    elementStarted(element: HtmlElement)
+    elementEnded(element: HtmlElement)
+    textCreated(node: HtmlNode)
 }

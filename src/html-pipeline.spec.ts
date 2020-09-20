@@ -1,4 +1,4 @@
-import { HtmlProcessTypes } from './types';
+import { HtmlProcessorTypes } from './types';
 import HtmlPipeline from "./html-pipeline"
 import { AttributeParameters } from "./processors/attribute-processor"
 
@@ -20,7 +20,7 @@ describe.skip('HtmlPipeline', () => {
     it('runs Attribute Processor', () => {
         const pipeline = new HtmlPipeline()
         pipeline.pipe<AttributeParameters>({
-            process: HtmlProcessTypes.AddAttribute,
+            processor: HtmlProcessorTypes.AddAttribute,
             params: {
                 selectors: ['span'],
                 action: 'add',

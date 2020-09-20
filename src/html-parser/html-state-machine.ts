@@ -1,4 +1,4 @@
-import StateMachine, { StateMachineTransition, StateMachineTransitions, StateMachineStates, StateMachineContext } from './state-machine'
+import StateMachine, { StateMachineTransition, StateMachineTransitions, StateMachineStates, StateMachineContext, StateMachineOptions } from './state-machine'
 
 interface StateContext {
     tagName?: string
@@ -11,6 +11,20 @@ interface StateContext {
     deferedText?: string
 }
 
+interface TextNode {
+    text: string
+}
+
+interface ElementNodeAttribute {
+    name: string
+    value: string
+}
+
+interface ElementNode {
+    tagName: string
+    attributes: ElementNodeAttribute[]
+}
+
 const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 const lowerCaseLetters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 const upperCaseLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -18,7 +32,6 @@ const letters = [...lowerCaseLetters, ...upperCaseLetters]
 const alphaNumberics = [...letters, ...numbers]
 const whitespaces = [' ', '\n', '\r', '\t']
 
-declare type HtmlStateMachine = StateMachine<StateContext>
 declare type HtmlStateMachineContext = StateMachineContext<StateContext>
 declare type HtmlStateMachineStates = StateMachineStates<StateContext>
 
@@ -90,7 +103,7 @@ function tagEndWithInnerTextStates(tagName: string) : HtmlStateMachineStates {
                 action: (_, context) => {
                     context.data(data => {
                         context.emit(Events.textCreated, { text: data.text })
-                        context.emit(Events.elementEnded, { tagName })
+                        context.emit(Events.elementEnded, { tagName: tagName.toUpperCase() })
                         return {}
                     })
                 }
@@ -194,7 +207,7 @@ const elementStarted = (action: string, context: HtmlStateMachineContext) => {
         if(data.tagName === 'script' || data.tagName === 'style') {
             context.to(data.tagName)
         }
-        context.emit(Events.elementStarted, { tagName: data.tagName, attributes: data.attributes ?? [] })
+        context.emit(Events.elementStarted, { tagName: data.tagName.toUpperCase(), attributes: data.attributes ?? [] })
         return {}
     })
 }
@@ -202,7 +215,7 @@ const elementStarted = (action: string, context: HtmlStateMachineContext) => {
 const elementEnded = (action: string, context: HtmlStateMachineContext) => {
     context.data((data) => {
         if(data.endTagName) {
-            context.emit(Events.elementEnded, { tagName: data.endTagName })
+            context.emit(Events.elementEnded, { tagName: data.endTagName.toUpperCase() })
         }
         return {}
     })
@@ -218,7 +231,7 @@ const textCreated = (action: string, context: HtmlStateMachineContext) => {
     })
 }
 
-const stateMachine = new StateMachine<StateContext>({
+const options: StateMachineOptions<StateContext> = {
     initialState: States.text,
     initialContext: {},
     states: {
@@ -242,7 +255,10 @@ const stateMachine = new StateMachine<StateContext>({
                 },
                 ...createTransitions(alphaNumberics, {
                     to: States.tagStart,
-                    action: appendTagName
+                    action: (action, context) => {
+                        textCreated(action, context)
+                        appendTagName(action, context)
+                    }
                 })
             },
             otherwise: {
@@ -254,10 +270,7 @@ const stateMachine = new StateMachine<StateContext>({
             on: {
                 ...createTransitions(alphaNumberics, {
                     to: States.tagStart,
-                    action: (action, context) => {
-                        textCreated(action, context)
-                        appendTagName(action, context)
-                    }
+                    action: appendTagName
                 }),
                 ...createTransitions(whitespaces, {
                     to: States.attrIdle,
@@ -436,6 +449,17 @@ const stateMachine = new StateMachine<StateContext>({
             }
         }
     }
-})
+}
 
-export default stateMachine
+class HtmlStateMachine extends StateMachine<StateContext> {
+    constructor() {
+        super(options)
+    }
+}
+
+export default HtmlStateMachine
+export {
+    TextNode,
+    ElementNode,
+    ElementNodeAttribute
+}

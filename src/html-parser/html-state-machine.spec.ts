@@ -1,24 +1,24 @@
-import stateMachine from './html-state-machine'
-
-function parse(html: string) {
-    stateMachine.reset()
-    for(let char of html) {
-        stateMachine.dispatch(char)
-    }
-    stateMachine.finish()
-}
+import HtmlStateMachine from './html-state-machine'
 
 describe('HtmlStateMachine', () => {
     let eventHandler: jest.Mock
+    let stateMachine: HtmlStateMachine
     
-    beforeAll(() => {
-        stateMachine.on('textCreated', (...args: any[]) => eventHandler('textCreated', ...args))
-        stateMachine.on('elementStarted', (...args: any[]) => eventHandler('elementStarted', ...args))
-        stateMachine.on('elementEnded', (...args: any[]) => eventHandler('elementEnded', ...args))
-    })
+    function parse(html: string) {
+        stateMachine.reset()
+        for(let char of html) {
+            stateMachine.dispatch(char)
+        }
+        stateMachine.finish()
+    }
 
     beforeEach(() => {
         eventHandler = jest.fn()
+
+        stateMachine = new HtmlStateMachine()
+        stateMachine.on('textCreated', (...args: any[]) => eventHandler('textCreated', ...args))
+        stateMachine.on('elementStarted', (...args: any[]) => eventHandler('elementStarted', ...args))
+        stateMachine.on('elementEnded', (...args: any[]) => eventHandler('elementEnded', ...args))
     })
 
     it('emits text created', () => {
@@ -33,7 +33,7 @@ describe('HtmlStateMachine', () => {
         const html = '<myTag>'
         parse(html)
 
-        expect(eventHandler).toHaveBeenCalledWith('elementStarted',{ tagName: 'myTag', attributes: [] })
+        expect(eventHandler).toHaveBeenCalledWith('elementStarted',{ tagName: 'MYTAG', attributes: [] })
         expect(eventHandler).toHaveBeenCalledTimes(1)
     })
 
@@ -41,7 +41,7 @@ describe('HtmlStateMachine', () => {
         const html = '</yourTag>'
         parse(html)
 
-        expect(eventHandler).toHaveBeenCalledWith('elementEnded',{ tagName: 'yourTag' })
+        expect(eventHandler).toHaveBeenCalledWith('elementEnded',{ tagName: 'YOURTAG' })
         expect(eventHandler).toHaveBeenCalledTimes(1)
     })
 
@@ -52,7 +52,7 @@ describe('HtmlStateMachine', () => {
         expect(eventHandler).toHaveBeenCalledWith(
             'elementStarted',
             {
-                tagName: 'myTag',
+                tagName: 'MYTAG',
                 attributes: [
                     {
                         name: 'attr1',
@@ -69,7 +69,7 @@ describe('HtmlStateMachine', () => {
         expect(eventHandler).toHaveBeenCalledWith(
             'elementStarted',
             {
-                tagName: 'myTag',
+                tagName: 'MYTAG',
                 attributes: [
                     {
                         name: 'attr1',
@@ -86,7 +86,7 @@ describe('HtmlStateMachine', () => {
         expect(eventHandler).toHaveBeenCalledWith(
             'elementStarted',
             {
-                tagName: 'myTag',
+                tagName: 'MYTAG',
                 attributes: [
                     {
                         name: 'attr1',
@@ -111,7 +111,7 @@ describe('HtmlStateMachine', () => {
         expect(eventHandler).toHaveBeenCalledWith(
             'elementStarted',
             {
-                tagName: 'thatTag',
+                tagName: 'THATTAG',
                 attributes: [
                     {
                         name: 'attr1',
@@ -143,11 +143,11 @@ describe('HtmlStateMachine', () => {
         parse(html)
 
         expect(eventHandler).toHaveBeenNthCalledWith(1, 'textCreated',{ text: 'R Y OK?' })
-        expect(eventHandler).toHaveBeenNthCalledWith(2, 'elementStarted',{ tagName: 'firstTag', attributes: [] })
+        expect(eventHandler).toHaveBeenNthCalledWith(2, 'elementStarted',{ tagName: 'FIRSTTAG', attributes: [] })
         expect(eventHandler).toHaveBeenNthCalledWith(3, 'textCreated',{ text: 'life is so good' })
-        expect(eventHandler).toHaveBeenNthCalledWith(4, 'elementStarted',{ tagName: 'secondTag', attributes: [] })
+        expect(eventHandler).toHaveBeenNthCalledWith(4, 'elementStarted',{ tagName: 'SECONDTAG', attributes: [] })
         expect(eventHandler).toHaveBeenNthCalledWith(5, 'textCreated',{ text: 'nah, even better'  })
-        expect(eventHandler).toHaveBeenNthCalledWith(6, 'elementEnded',{ tagName: 'thirdTag' })
+        expect(eventHandler).toHaveBeenNthCalledWith(6, 'elementEnded',{ tagName: 'THIRDTAG' })
         expect(eventHandler).toHaveBeenCalledTimes(6)
     })
 
@@ -160,14 +160,14 @@ describe('HtmlStateMachine', () => {
         </script>`
         parse(html)
 
-        expect(eventHandler).toHaveBeenNthCalledWith(1, 'elementStarted',{ tagName: 'script', attributes: [] })
+        expect(eventHandler).toHaveBeenNthCalledWith(1, 'elementStarted',{ tagName: 'SCRIPT', attributes: [] })
         expect(eventHandler).toHaveBeenNthCalledWith(2, 'textCreated',{ text: `
         var text = 'namber'
         <html>
         </html>
         </script
         ` })
-        expect(eventHandler).toHaveBeenNthCalledWith(3, 'elementEnded',{ tagName: 'script' })
+        expect(eventHandler).toHaveBeenNthCalledWith(3, 'elementEnded',{ tagName: 'SCRIPT' })
         expect(eventHandler).toHaveBeenCalledTimes(3)
     })
 
@@ -181,14 +181,14 @@ describe('HtmlStateMachine', () => {
         parse(html)
 
         expect(eventHandler).toHaveBeenNthCalledWith(1, 'textCreated',{ text: `my text` })
-        expect(eventHandler).toHaveBeenNthCalledWith(2, 'elementStarted',{ tagName: 'style', attributes: [{ name: 'type', value: 'text/css' }] })
+        expect(eventHandler).toHaveBeenNthCalledWith(2, 'elementStarted',{ tagName: 'STYLE', attributes: [{ name: 'type', value: 'text/css' }] })
         expect(eventHandler).toHaveBeenNthCalledWith(3, 'textCreated',{ text: `
         .myStyle {
             backgrounf-color: #fff;
         }
         </style
         ` })
-        expect(eventHandler).toHaveBeenNthCalledWith(4, 'elementEnded',{ tagName: 'style' })
+        expect(eventHandler).toHaveBeenNthCalledWith(4, 'elementEnded',{ tagName: 'STYLE' })
         expect(eventHandler).toHaveBeenCalledTimes(4)
     })
 

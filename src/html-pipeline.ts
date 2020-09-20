@@ -1,26 +1,47 @@
+import { HtmlElement } from './dom/html-element';
 import { HtmlPipelineOption, HtmlProcessor } from "./types";
 import lookup from './buildin-processor-lookup'
-// import { Parser } from "htmlparser2";
+import { HtmlParser } from "./html-parser/html-parser";
+import { HtmlNode } from "./dom/html-node";
 
 class HtmlPipeline {
-    private processors: HtmlProcessor<any>[]
+    private _processors: HtmlProcessor<any>[]
+    private _parser: HtmlParser
 
     constructor() {
-        this.processors = []
+        this._processors = []
+        this._parser = new HtmlParser()
+        this._parser.on('elementStarted', this._elementStarted.bind(this))
+        this._parser.on('elementEnded', this._elementEnded.bind(this))
+        this._parser.on('textCreated', this._textCreated.bind(this))
+    }
+
+    _elementStarted(node: HtmlNode) {
+        this._processors.forEach(processor => {
+            processor.elementStarted(node as HtmlElement)
+        })
+    }
+
+    _elementEnded(node: HtmlNode) {
+        this._processors.forEach(processor => {
+            processor.elementEnded(node as HtmlElement)
+        })
+    }
+
+    _textCreated(node: HtmlNode) {
+        this._processors.forEach(processor => {
+            processor.textCreated(node)
+        })
     }
 
     pipe<TParam>(option: HtmlPipelineOption<TParam>) {
-        var processor = lookup.get(option.process)
-        this.processors.push(new processor(option.params))
+        var processor = lookup.get(option.processor)
+        this._processors.push(new processor(option.params))
     }
 
     process(html: string): string {
-        // var dom = new JSDOM(html)
-        // for(const processor of this.processors) {
-        //     processor.process(dom.window.document)
-        // }
-        // return dom.window.document.documentElement.outerHTML
-        return null
+        const document = this._parser.parse(html)
+        return document.documentElement.outerHtml
     }
 }
 
