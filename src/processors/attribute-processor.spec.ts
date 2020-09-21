@@ -8,7 +8,7 @@ describe('AttributeProcessor', () => {
         <body>
             <div class="content" attr1></div>
             <span attr1></span>
-            <a attr2></a>
+            <a attr2><img src="../src/sample.jpeg "></a>
             <span attr2></span>
         </body>
         </html>
@@ -30,7 +30,7 @@ describe('AttributeProcessor', () => {
         expect(result).toContain(`
             <div class="content" attr1=""></div>
             <span attr1="" my-attr=""></span>
-            <a attr2=""></a>
+            <a attr2=""><img src="../src/sample.jpeg "></a>
             <span attr2="" my-attr=""></span>`)
     })
 
@@ -49,7 +49,7 @@ describe('AttributeProcessor', () => {
         expect(result).toContain(`
             <div class="content" attr1="" my-attr=""></div>
             <span attr1="" my-attr=""></span>
-            <a attr2=""></a>
+            <a attr2=""><img src="../src/sample.jpeg "></a>
             <span attr2="" my-attr=""></span>`)
     })
 
@@ -68,7 +68,7 @@ describe('AttributeProcessor', () => {
         expect(result).toContain(`
             <div class="content" attr1=""></div>
             <span></span>
-            <a attr2=""></a>
+            <a attr2=""><img src="../src/sample.jpeg "></a>
             <span attr2=""></span>`)
     })
 
@@ -87,7 +87,64 @@ describe('AttributeProcessor', () => {
         expect(result).toContain(`
             <div class="content"></div>
             <span></span>
-            <a attr2=""></a>
+            <a attr2=""><img src="../src/sample.jpeg "></a>
             <span attr2=""></span>`)
+    })
+
+    it('transforms attributes', () => {
+        html = `
+        <html>
+        <body>
+            <div class="content" attr1></div>
+            <span attr1></span>
+            <a attr2><img src="../src/sample.jpeg "></a>
+            <span attr2></span>
+            <img src="sample2.jpeg ">
+            <img src="/sample3.jpeg ">
+        </body>
+        </html>
+        `
+
+        const processor = new HtmlPipeline()
+        processor.pipe({
+            processor: 'attribute',
+            params: {
+                selectors: 'img',
+                action: 'transform',
+                attribute: 'src',
+                transformations: [
+                    {
+                        action: 'trim'
+                    },
+                    {
+                        action: 'joinUrl',
+                        params: [
+                            'https://www.myweb.com/web/index.html'
+                        ]
+                    },
+                    {
+                        action: 'encodeUrl'
+                    },
+                    {
+                        action: 'format',
+                        params: [
+                            'https://www.proxy.net/get?url={0}'
+                        ]
+                    }
+                ]
+            }
+        })
+        const result = processor.process(html)
+
+        expect(result).toEqual(`<html>
+        <body>
+            <div class="content" attr1=""></div>
+            <span attr1=""></span>
+            <a attr2=""><img src="https://www.proxy.net/get?url=https%3A%2F%2Fwww.myweb.com%2Fsrc%2Fsample.jpeg"></a>
+            <span attr2=""></span>
+            <img src="https://www.proxy.net/get?url=https%3A%2F%2Fwww.myweb.com%2Fweb%2Fsample2.jpeg">
+            <img src="https://www.proxy.net/get?url=https%3A%2F%2Fwww.myweb.com%2Fsample3.jpeg">
+        </body>
+        </html>`)
     })
 })

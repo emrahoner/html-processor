@@ -16,7 +16,7 @@ export class NamedNodeMap {
     }
 
     getNamedItem(name: string): Attr {
-        return this._namedNodes[name];
+        return this._namedNodes.get(name);
     }
 
     setNamedItem(attr: Attr): void {

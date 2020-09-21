@@ -9,7 +9,7 @@ type ElementProcessorActions = 'remove' | 'removeOthers'
 interface ElementProcessorParameters {
     selectors: string[] | string
     action: ElementProcessorActions
-    ifIn: string[] | string
+    ifIn?: string[] | string
 }
 
 function getParents(from: HtmlElement, till: HtmlElement) {
