@@ -14,7 +14,7 @@ describe('AttributeProcessor', () => {
         <body>
             <div class="content" attr1></div>
             <span attr1></span>
-            <a attr2></a>
+            <a attr2><img href="url"></a>
             <span attr2></span>
         </body>
         </html>
@@ -42,7 +42,7 @@ describe('AttributeProcessor', () => {
         <body>
             <div class="content" attr1=""></div>
             
-            <a attr2=""></a>
+            <a attr2=""><img href="url"></a>
             
         </body>
         </html>`)
@@ -68,6 +68,63 @@ describe('AttributeProcessor', () => {
             <span attr1=""></span>
             
             <span attr2=""></span>
+        </body>
+        </html>`)
+    })
+
+    it('remove element with selectors if in body element', () => {
+        const processor = new HtmlPipeline()
+        processor.pipe({
+            processor: 'element',
+            params: {
+                selectors: ['script', 'a'],
+                action: 'remove',
+                ifIn: 'body'
+            }
+        })
+        const result = processor.process(html)
+
+        expect(result).toMatch(`<html>
+        <head>
+            <script>
+                var temp = 'Temp string'
+                console.log(temp)
+            </script>
+        </head>
+        <body>
+            <div class="content" attr1=""></div>
+            <span attr1=""></span>
+            
+            <span attr2=""></span>
+        </body>
+        </html>`)
+    })
+
+
+    it('remove other elements of selector if in body element', () => {
+        const processor = new HtmlPipeline()
+        processor.pipe({
+            processor: 'element',
+            params: {
+                selectors: 'a',
+                action: 'removeOthers',
+                ifIn: 'body'
+            }
+        })
+        const result = processor.process(html)
+
+        expect(result).toMatch(`<html>
+        <head>
+            <script>
+                var temp = 'Temp string'
+                console.log(temp)
+            </script>
+        </head>
+        <body>
+            
+            
+            <a attr2=""><img href="url"></a>
+            
         </body>
         </html>`)
     })

@@ -58,4 +58,13 @@ export class HtmlNode {
         current._childNodes.push(node)
         return node
     }
+
+    remove() {
+        if(!this._parentNode) return
+        const index = this._parentNode.childNodes.indexOf(this)
+        if(index >= 0) {
+            this._parentNode.childNodes.splice(index, 1)
+        }
+        // this._parentNode = null
+    }
 }

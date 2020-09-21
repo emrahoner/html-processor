@@ -1,24 +1,7 @@
-import { HtmlElement } from '../dom/html-element';
+import { HtmlElement, SelfClosingTags } from '../dom/html-element';
 import HtmlStateMachine, { TextNode, ElementNode } from './html-state-machine' 
 import { HtmlDocument } from '../dom/html-document'
 import { HtmlNode } from '../dom/html-node'
-
-const selfClosingTags = [
-    'AREA',
-    'BASE',
-    'BR',
-    'COL',
-    'EMBED',
-    'HR',
-    'IMG',
-    'INPUT',
-    'LINK',
-    'META',
-    'PARAM',
-    'SOURCE',
-    'TRACK',
-    'WBR'
-]
 
 enum EventTypes {
     nodeCreated = 'nodeCreated',
@@ -68,10 +51,12 @@ export class HtmlParser {
             element.attributes.setNamedItem(attribute)
         })
         this._current.appendChild(element)
-        if(!selfClosingTags.find(x => x === element.tagName)) {
-            this._current = element
-        }
         this._emit(EventTypes.elementStarted, element)
+        if(!SelfClosingTags.find(x => x === element.tagName)) {
+            this._current = element
+        } else {
+            this._emit(EventTypes.elementEnded, element)
+        }
     }
 
     private _elementEnded(elementNode: ElementNode) {

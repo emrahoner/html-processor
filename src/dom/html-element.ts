@@ -88,6 +88,23 @@ function compareClassList(refClassList: DOMTokenList, selectorClassList: string[
     );
   }
 
+export const SelfClosingTags = [
+    'AREA',
+    'BASE',
+    'BR',
+    'COL',
+    'EMBED',
+    'HR',
+    'IMG',
+    'INPUT',
+    'LINK',
+    'META',
+    'PARAM',
+    'SOURCE',
+    'TRACK',
+    'WBR'
+]
+
 export class HtmlElement extends HtmlNode {
     private _attributes: NamedNodeMap
     
@@ -121,7 +138,7 @@ export class HtmlElement extends HtmlNode {
     }
 
     get outerHtml(): string {
-        return `<${this._nodeName.toLowerCase()}${this._attributeString}>${this.innerHtml}</${this._nodeName.toLowerCase()}>`
+        return `<${this._nodeName.toLowerCase()}${this._attributeString}>` + (SelfClosingTags.includes(this.tagName) ? '' : `${this.innerHtml}</${this._nodeName.toLowerCase()}>`)
     }
 
     matches(selector: string): boolean {
@@ -142,13 +159,6 @@ export class HtmlElement extends HtmlNode {
         }
 
         return selectorIndex < 0
-    }
-
-    remove() {
-        const index = this._parentNode.childNodes.indexOf(this)
-        if(index >= 0) {
-            this._parentNode.childNodes.splice(index, 1)
-        }
     }
 
     private get _attributeString(): string {
