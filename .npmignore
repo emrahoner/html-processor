@@ -1,0 +1,6 @@
+src/
+coverage/
+.vscode/
+.circleci/
+/*
+*.js.map
