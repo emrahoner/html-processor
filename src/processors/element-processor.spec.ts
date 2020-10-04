@@ -53,7 +53,7 @@ describe('AttributeProcessor', () => {
         processor.pipe({
             processor: 'element',
             params: {
-                selectors: ['script', 'a'],
+                selectors: ['script', 'a[attr2]'],
                 action: 'remove'
             }
         })
