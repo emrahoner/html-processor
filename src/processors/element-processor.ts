@@ -2,7 +2,7 @@ import { HtmlElement } from '../dom/html-element';
 import { HtmlProcessorTypes } from '../types';
 import { HtmlProcessor } from '../types';
 import Processor from '../decorators/processor';
-import { HtmlNode } from 'src/dom/html-node';
+import { HtmlNode } from '../dom/html-node';
 
 type ElementProcessorActions = 'remove' | 'removeOthers'
 

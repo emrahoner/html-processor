@@ -1,4 +1,3 @@
-import { HtmlDocument } from 'src/dom/html-document';
 import { HtmlElement } from "./html-element"
 import { NodeTypes } from "./node-types"
 

@@ -1,5 +1,5 @@
-import { HtmlElement } from './../dom/html-element';
-import { HtmlDocument } from 'src/dom/html-document';
+import { HtmlElement } from '../dom/html-element';
+import { HtmlDocument } from '../dom/html-document';
 import { HtmlParser } from "./html-parser"
 
 describe('HtmlParser', () => {
