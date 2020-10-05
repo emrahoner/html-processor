@@ -120,12 +120,63 @@ describe('AttributeProcessor', () => {
                 console.log(temp)
             </script>
         </head>
+        <body><a attr2=""><img href="url"></a></body>
+        </html>`)
+    })
+
+
+    it('removes other than nested element', () => {
+        const processor = new HtmlPipeline()
+        processor.pipe({
+            processor: 'element',
+            params: {
+                selectors: '[webpub-article]',
+                action: 'removeOthers',
+                ifIn: 'body'
+            }
+        })
+        const result = processor.process(`<html>
         <body>
-            
-            
-            <a attr2=""><img href="url"></a>
-            
+            <div class="container">
+                <div class="header">
+                    <nav>
+                        <ul>
+                            <li>Menu 1</li>
+                            <li>Menu 2</li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="content">
+                    <div>
+                        <span>Article is created at 10days ago.</span>
+                    </div>
+                    <div>
+                        <article webpub-article>
+                            <p>This is an <b>important</b> paragraph</p>
+                            <div class="image">
+                                <img src="important-image.jpeg" alt="Important Image">
+                            </div>
+                        </article>
+                    </div>
+                    <div class="share-link">
+                        <a href="#facebook">Facebook</a>
+                        <a href="#twitter">Twitter</a>
+                    </div>
+                </div>
+                <div class="footer">
+                    <span>Copyrights</span>
+                </div>
+            </div>
         </body>
+        </html>`)
+
+        expect(result).toMatch(`<html>
+        <body><div class="container"><div class="content"><div><article webpub-article="">
+                            <p>This is an <b>important</b> paragraph</p>
+                            <div class="image">
+                                <img src="important-image.jpeg" alt="Important Image">
+                            </div>
+                        </article></div></div></div></body>
         </html>`)
     })
 })

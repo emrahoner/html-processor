@@ -4,7 +4,7 @@ import { HtmlDocument } from '../dom/html-document'
 import { HtmlNode } from '../dom/html-node'
 
 enum EventTypes {
-    nodeCreated = 'nodeCreated',
+    textCreated = 'textCreated',
     elementStarted = 'elementStarted',
     elementEnded = 'elementEnded'
 }
@@ -42,7 +42,7 @@ export class HtmlParser {
         const node = new HtmlNode('#text')
         node.textContent = textNode.text
         this._current.appendChild(node)
-        this._emit(EventTypes.nodeCreated, node)
+        this._emit(EventTypes.textCreated, node)
     }
 
     private _elementStarted(elementNode: ElementNode) {

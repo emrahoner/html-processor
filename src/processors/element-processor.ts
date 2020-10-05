@@ -14,7 +14,7 @@ interface ElementProcessorParameters {
 
 function getParents(from: HtmlElement, till: HtmlElement) {
     const result = []
-    for(let current = from; current = current.parentElement; current && current !== till) {
+    for(let current = from; current && current !== till; current = current.parentElement) {
         result.push(current)
     }
     return result
