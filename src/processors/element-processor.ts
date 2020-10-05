@@ -4,12 +4,44 @@ import { HtmlProcessor } from '../types';
 import Processor from '../decorators/processor';
 import { HtmlNode } from '../dom/html-node';
 
-type ElementProcessorActions = 'remove' | 'removeOthers'
+type ElementProcessorActions = 'remove' | 'removeOthers' | 'appendChild' | 'prependChild'
+
+interface ElementNode {
+    tagName: string
+    attributes?: { name: string, value: string }[]
+    children?: (ElementNode|TextNode)[]
+}
+
+interface TextNode {
+    content: string
+}
 
 interface ElementProcessorParameters {
     selectors: string[] | string
     action: ElementProcessorActions
     ifIn?: string[] | string
+    textNode?: TextNode
+    element?: ElementNode
+}
+
+function createNode(nodeMeta: ElementNode | TextNode): HtmlNode {
+    const tagName = (<ElementNode>nodeMeta).tagName || "#text"
+    if(tagName === '#text') {
+        const textNodeMeta = <TextNode>nodeMeta
+        const node = new HtmlNode(tagName)
+        node.textContent = textNodeMeta.content
+        return node
+    } else {
+        const elementMeta = <ElementNode>nodeMeta
+        const element = new HtmlElement(tagName)
+        elementMeta.attributes && elementMeta.attributes.forEach(attribute => {
+            element.attributes.setNamedItem({ ...attribute })
+        })
+        elementMeta.children && elementMeta.children.forEach(child => {
+            element.appendChild(createNode(child))
+        })
+        return element
+    }
 }
 
 function getParents(from: HtmlElement, till: HtmlElement) {
@@ -56,12 +88,23 @@ class ElementProcessor implements HtmlProcessor<ElementProcessorParameters> {
         if(this._topParent === element) {
             this._topParent = null
         }
-        if(this._topParent && this._action === 'removeOthers') {
-            if(this._dontDelete === element) {
-                this._dontDelete = null
-            } else {
-                if(!this._dontDelete && !this._parents.find(parent => parent === element)) {
-                    element.remove()
+        if(this._topParent) {
+            if(this._action === 'removeOthers') {
+                if(this._dontDelete === element) {
+                    this._dontDelete = null
+                } else {
+                    if(!this._dontDelete && !this._parents.find(parent => parent === element)) {
+                        element.remove()
+                    }
+                }
+            } else if(this._action === 'appendChild' || this._action === 'prependChild') {
+                if(this._selectors.reduce((prev, curr) => prev || element.matches(curr), false)) {
+                    const node = createNode(this._params.textNode || this._params.element)
+                    if(this._action === 'appendChild') {
+                        element.appendChild(node)
+                    } else {
+                        element.insertBefore(node, element.firstChild)
+                    }
                 }
             }
         }

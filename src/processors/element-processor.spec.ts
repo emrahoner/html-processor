@@ -179,4 +179,57 @@ describe('AttributeProcessor', () => {
                         </article></div></div></div></body>
         </html>`)
     })
+
+
+    it('remove element with selectors if in body element', () => {
+        const processor = new HtmlPipeline()
+        processor.pipe({
+            processor: 'element',
+            params: {
+                selectors: ['body'],
+                action: 'appendChild',
+                textNode: {
+                    content: 'This is new content'
+                }
+            }
+        })
+        processor.pipe({
+            processor: 'element',
+            params: {
+                selectors: ['body'],
+                action: 'prependChild',
+                element: {
+                    tagName: 'div',
+                    attributes: [{ name: 'class', value: 'new-content' }],
+                    children: [
+                        {
+                            tagName: 'a',
+                            attributes: [{ name: 'href', value: 'http://new-url' }],
+                            children: [
+                                {
+                                    content: 'New Url'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        })
+        const result = processor.process(html)
+
+        expect(result).toMatch(`<html>
+        <head>
+            <script>
+                var temp = 'Temp string'
+                console.log(temp)
+            </script>
+        </head>
+        <body><div class="new-content"><a href="http://new-url">New Url</a></div>
+            <div class="content" attr1=""></div>
+            <span attr1=""></span>
+            <a attr2=""><img href="url"></a>
+            <span attr2=""></span>
+        This is new content</body>
+        </html>`)
+    })
 })
