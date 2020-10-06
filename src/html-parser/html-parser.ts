@@ -60,12 +60,21 @@ export class HtmlParser {
     }
 
     private _elementEnded(elementNode: ElementNode) {
+        const current = this._current
+        const parents = []
         while(this._current && this._current.nodeName !== elementNode.tagName) {
-            this._emit(EventTypes.elementEnded, this._current)
+            parents.push(this._current)
             this._current = this._current.parent
         }
-        this._emit(EventTypes.elementEnded, this._current)
-        this._current = this._current?.parent
+        if(this._current) {
+            parents.forEach(parent => {
+                this._emit(EventTypes.elementEnded, parent)
+            })
+            this._emit(EventTypes.elementEnded, this._current)
+            this._current = this._current?.parent
+        } else {
+            this._current = current
+        }
     }
 
     parse(html: string): HtmlDocument {

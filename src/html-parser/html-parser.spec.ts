@@ -84,6 +84,104 @@ describe('HtmlParser', () => {
         expect(element.childNodes.length).toEqual(0)
     })
 
+    it('parses html by closing non closed elements', () => {
+        const html = `<html>
+        <body>
+            <div class='container'>
+                <span>Test
+                <a>Test2
+            </div>
+        </body></html>`
+
+        let document: HtmlDocument,
+            element: HtmlElement
+        
+        document = parser.parse(html)
+        expect(document.nodeName).toEqual('#document')
+        expect(document.children.length).toEqual(1)
+
+        element = document.documentElement
+        expect(element.tagName).toEqual('HTML')
+        expect(element.parent.nodeName).toEqual('#document')
+        expect(element.attributes.length).toEqual(0)
+        expect(element.children.length).toEqual(1)
+
+        element = element.children[0]
+        expect(element.tagName).toEqual('BODY')
+        expect(element.parent.nodeName).toEqual('HTML')
+        expect(element.attributes.length).toEqual(0)
+        expect(element.children.length).toEqual(1)
+
+        element = element.children[0]
+        expect(element.tagName).toBe('DIV')
+        expect(element.parent.nodeName).toEqual('BODY')
+        expect(element.attributes.length).toEqual(1)
+        expect(element.attributes.item(0)).toEqual({ name: 'class', value: 'container' })
+        expect(element.children.length).toEqual(1)
+
+        element = element.children[0]
+        expect(element.tagName).toBe('SPAN')
+        expect(element.parent.nodeName).toEqual('DIV')
+        expect(element.attributes.length).toEqual(0)
+        expect(element.children.length).toEqual(1)
+        expect(element.childNodes.length).toEqual(2)
+        expect(element.childNodes[0].textContent).toMatch(/^Test\s+$/)
+
+        element = element.children[0]
+        expect(element.tagName).toBe('A')
+        expect(element.parent.nodeName).toEqual('SPAN')
+        expect(element.attributes.length).toEqual(0)
+        expect(element.children.length).toEqual(0)
+        expect(element.childNodes.length).toEqual(1)
+        expect(element.childNodes[0].textContent).toMatch(/^Test2\s+$/)
+    })
+
+
+    it('parses html by ignoring non started elements', () => {
+        const html = `<html>
+        <body>
+            <div class='container'>
+                <span>Test
+                </li>
+            </div>
+        </body></html>`
+
+        let document: HtmlDocument,
+            element: HtmlElement
+        
+        document = parser.parse(html)
+        expect(document.nodeName).toEqual('#document')
+        expect(document.children.length).toEqual(1)
+
+        element = document.documentElement
+        expect(element.tagName).toEqual('HTML')
+        expect(element.parent.nodeName).toEqual('#document')
+        expect(element.attributes.length).toEqual(0)
+        expect(element.children.length).toEqual(1)
+
+        element = element.children[0]
+        expect(element.tagName).toEqual('BODY')
+        expect(element.parent.nodeName).toEqual('HTML')
+        expect(element.attributes.length).toEqual(0)
+        expect(element.children.length).toEqual(1)
+
+        element = element.children[0]
+        expect(element.tagName).toBe('DIV')
+        expect(element.parent.nodeName).toEqual('BODY')
+        expect(element.attributes.length).toEqual(1)
+        expect(element.attributes.item(0)).toEqual({ name: 'class', value: 'container' })
+        expect(element.children.length).toEqual(1)
+
+        element = element.children[0]
+        expect(element.tagName).toBe('SPAN')
+        expect(element.parent.nodeName).toEqual('DIV')
+        expect(element.attributes.length).toEqual(0)
+        expect(element.children.length).toEqual(0)
+        expect(element.childNodes.length).toEqual(2)
+        expect(element.childNodes[0].textContent).toMatch(/^Test\s+$/)
+        expect(element.childNodes[1].textContent).toMatch(/^\s+$/)
+    })
+
     it('parses script and styles', () => {
         const html = `<html>
         <head>
