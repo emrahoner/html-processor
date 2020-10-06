@@ -9,6 +9,18 @@ describe('HtmlParser', () => {
         parser = new HtmlParser()
     })
 
+    it('fails for not existing transition', () => {
+        const html = `<tag->`
+        
+        try {
+            parser.parse(html)
+        } catch(error) {
+            expect(error.message).toBe('State machine is failed at the index 4.')
+            expect(error.html).toBe('<tag->')
+            expect(error.error.stack).toContain('state-machine.ts')
+        }
+    })
+
     it('parses html', () => {
         const html = `<html>
         <body>

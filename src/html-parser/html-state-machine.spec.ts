@@ -45,6 +45,22 @@ describe('HtmlStateMachine', () => {
         expect(eventHandler).toHaveBeenCalledTimes(1)
     })
 
+    it('emits element started for self closing elements', () => {
+        const html = '<yourTag/>'
+        parse(html)
+
+        expect(eventHandler).toHaveBeenCalledWith('elementStarted',{ tagName: 'YOURTAG', attributes: [] })
+        expect(eventHandler).toHaveBeenCalledTimes(1)
+    })
+
+    it('emits element started with attribute for self closing elements', () => {
+        const html = '<yourTag/attr>'
+        parse(html)
+
+        expect(eventHandler).toHaveBeenCalledWith('elementStarted',{ tagName: 'YOURTAG', attributes: [{ name: 'attr', value: '' }] })
+        expect(eventHandler).toHaveBeenCalledTimes(1)
+    })
+
     it('emits element with valueless attribute', () => {
         const html = '<myTag  attr1>'
         parse(html)

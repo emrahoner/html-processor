@@ -272,7 +272,7 @@ const options: StateMachineOptions<StateContext> = {
                     to: States.tagStart,
                     action: appendTagName
                 }),
-                ...createTransitions(whitespaces, {
+                ...createTransitions([...whitespaces, '/'], {
                     to: States.attrIdle,
                     action: (_, context) => {
                         context.data(data => {

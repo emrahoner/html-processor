@@ -71,8 +71,13 @@ export class HtmlParser {
     parse(html: string): HtmlDocument {
         this._current = this._document = new HtmlDocument()
         this._stateMachine.reset()
-        for(const char of html) {
-            this._stateMachine.dispatch(char)
+        for(let i = 0; i < html.length; i++) {
+            const char = html[i]
+            try {
+                this._stateMachine.dispatch(char)
+            } catch (error) {
+                throw { message: `State machine is failed at the index ${i}.`, html: html.substr(i - 20, 40), error }
+            }
         }
         this._stateMachine.finish()
         return this._document
