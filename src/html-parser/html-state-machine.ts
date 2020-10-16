@@ -323,7 +323,7 @@ const options: StateMachineOptions<StateContext> = {
         },
         [States.attrName]: {
             on: {
-                ...createTransitions([...alphaNumberics, '-', '_'], {
+                ...createTransitions([...alphaNumberics, '-', '_', ':'], {
                     to: States.attrName,
                     action: appendAttrName
                 }),
